@@ -1,0 +1,1172 @@
+
+You are a senior full-stack software engineer, product designer, database architect, and Android developer. Build a complete, production-minded personal productivity application called IRONMAN from scratch.
+
+Do not create just a visual prototype. Build the real application, its screens, business logic, database, authentication, notifications, charts, data persistence, and Android integration.
+
+If a project already exists, inspect it first and preserve useful code. If the project is empty, initialize it from scratch.
+
+Do not stop after producing a plan. Implement the application. If you have filesystem and terminal access, create the actual project files, install dependencies, run checks, fix errors, and continue until the acceptance criteria are satisfied. If you cannot access a required external service or native build tool, explain exactly what is missing and still complete all work that can be implemented.
+
+Do not ask unnecessary questions. Use the product requirements below as the source of truth.
+
+==================================================
+1. PRODUCT VISION
+==================================================
+
+App name: IRONMAN
+Product type: Personal productivity, study, fitness, sleep, music, and expense tracking application.
+Primary challenge duration: Three calendar months from a user-selected start date.
+Default timezone: Asia/Tashkent.
+Default currency: UZS.
+Interface language: Uzbek, Latin alphabet.
+Platforms: Desktop web browser and Android APK.
+Primary user: A single individual managing their own study and fitness goals.
+
+The two main goals are:
+
+1. Improve personal fitness and consistently complete user-defined workouts.
+2. Study SAT and English, record the topics to learn each day, and complete 10 mock tests.
+
+Additional modules:
+- Daily Dashboard
+- SAT & English
+- Fitness
+- Sleep Tracker
+- Music Playlists
+- Expenses
+- Analytics
+- Settings and Profile
+
+The experience must be simple, clean, motivating, professional, and practical to use every day.
+
+The application should enforce discipline through daily deadlines, automatic missed-task handling, reminders, historical records, and analytics. It must not shame the user or fabricate successful progress.
+
+Never invent study topics, workouts, expenses, sleep records, or mock scores. The user creates and records their own information.
+
+==================================================
+2. REQUIRED TECHNOLOGY
+==================================================
+
+Use the following stack:
+
+- React
+- TypeScript with strict type checking
+- Vite
+- Tailwind CSS
+- Lucide React icons
+- React Router for navigation
+- Recharts for responsive analytics charts
+- Supabase Authentication
+- Supabase PostgreSQL database
+- Supabase Row Level Security (RLS)
+- Capacitor for the Android application
+- Capacitor Local Notifications for native notifications
+- Capacitor Filesystem or an appropriate maintained file-access solution
+- A maintained and Android-compatible native audio playback solution for background music
+- Vitest for unit tests
+- Playwright for browser-level end-to-end tests where available
+
+Use current stable, mutually compatible package versions. Verify current documentation when selecting native plugins.
+
+For date calculations, use a reliable date library and explicitly handle the Asia/Tashkent timezone. Do not rely on ambiguous UTC/local date conversions.
+
+Use a component-based architecture. Do not implement the whole application in one enormous component.
+
+Do not store authentication passwords in the database yourself. Use Supabase Auth.
+
+Never expose Supabase service-role credentials in frontend code. Only use the appropriate public/publishable client key and enforce access through RLS.
+
+Create a .env.example file. Never commit real secrets.
+
+==================================================
+3. VISUAL DESIGN SYSTEM
+==================================================
+
+Create a minimal, polished, white interface.
+
+Design references:
+- Professional productivity dashboard
+- Modern academic planner
+- Clean personal analytics product
+- Desktop sidebar and mobile bottom navigation
+
+Use this design direction:
+
+- Main background: #F8FAFC or a similar very light neutral.
+- Main cards: #FFFFFF.
+- Primary blue: #2563EB.
+- Main text: #0F172A.
+- Secondary text: #64748B.
+- Borders: #E2E8F0.
+- Success: a restrained green.
+- Missed or error states: restrained red.
+- Locked states: neutral gray.
+
+Use colors consistently through design tokens.
+
+Requirements:
+- Clean typography, preferably Inter or another readable system font.
+- Consistent spacing.
+- Moderate card radius, approximately 12–16px.
+- Subtle borders and restrained shadows.
+- Small, purposeful icons.
+- Clear visual hierarchy.
+- Comfortable touch targets on mobile.
+- Responsive forms and charts.
+- Smooth but restrained transitions.
+- Accessible focus states and keyboard navigation.
+- Loading, empty, error, success, and disabled states.
+- Clear confirmation dialogs for destructive actions.
+
+Avoid:
+- Childish styling.
+- Excessive gradients.
+- Glassmorphism everywhere.
+- Excessive animations.
+- Emoji replacing proper icons.
+- Random decorative elements.
+- Too many colors.
+- Huge headings that waste space.
+- Dense, cramped layouts.
+- Fake statistics.
+- Buttons that do nothing.
+- Placeholder links and dummy actions.
+
+All user-facing text must be in Uzbek Latin.
+
+Use consistent Uzbek terminology throughout the application. For example:
+- Bosh sahifa
+- SAT va English
+- Fitness
+- Uyqu
+- Musiqa
+- Xarajatlar
+- Analitika
+- Sozlamalar
+- Bugungi vazifalar
+- Bajarildi
+- Bajarilmadi
+- Qulflangan
+- Keyingi kunga ko‘chirildi
+
+==================================================
+4. RESPONSIVE APPLICATION SHELL
+==================================================
+
+On desktop:
+- Show a fixed or sticky left sidebar.
+- Show the IRONMAN brand at the top.
+- Show navigation icons and labels.
+- Show the user's profile and logout action.
+- Display the selected page in the main content area.
+- Keep content at a readable maximum width.
+- Do not unnecessarily stretch forms and cards across ultrawide screens.
+
+On mobile:
+- Replace the desktop sidebar with a bottom navigation bar.
+- Add appropriate top spacing and a compact header.
+- Ensure the bottom navigation respects the device safe area.
+- Ensure no content is hidden behind the navigation bar.
+- Make all actions touch-friendly.
+- Use compact cards and responsive graphs.
+- Avoid horizontal page scrolling.
+
+Primary navigation:
+1. Dashboard
+2. SAT & English
+3. Fitness
+4. Sleep
+5. Analytics
+
+Provide accessible navigation to Music, Expenses, and Settings from the Dashboard or a secondary navigation area. Do not overcrowd the mobile bottom navigation.
+
+The selected navigation item must be clearly indicated.
+
+Use real routes. Refreshing a route must not unnecessarily redirect the user or break the application.
+
+==================================================
+5. AUTHENTICATION AND FIRST-TIME SETUP
+==================================================
+
+Create a polished login and registration experience.
+
+Required screens:
+- Login
+- Create account
+- Forgot password
+- Password reset callback
+- Initial onboarding
+- Profile and settings
+
+Login form:
+- Email
+- Password
+- Show/hide password
+- Remember the authenticated session using Supabase Auth
+- Loading state
+- Proper validation
+- Clear error messages
+
+Registration:
+- Email
+- Password
+- Password confirmation
+- Appropriate password validation
+- Handle email confirmation according to Supabase settings
+
+After successful authentication:
+- If first-time user, open onboarding.
+- Otherwise, open Dashboard.
+
+Do not create a fake frontend-only authentication system.
+
+Onboarding:
+1. Welcome to IRONMAN.
+2. Select the challenge start date. Default to today.
+3. Explain that the challenge lasts three calendar months.
+4. Select the preferred daily planning reminder time.
+5. Configure the sleep target, if desired.
+6. Configure the user's notification preferences.
+7. Finish setup and open Dashboard.
+
+Do not force the user to choose unrealistic targets. The user can edit preferences later.
+
+Support logout, session restoration, password reset, and expired-session handling.
+
+When Supabase credentials are missing, show a helpful configuration error instead of pretending authentication works.
+
+==================================================
+6. THREE-MONTH CHALLENGE ENGINE
+==================================================
+
+The challenge begins on the start date selected by the user.
+
+Calculate the challenge end date as three calendar months after the start date. Handle short months and month-end dates correctly.
+
+Use Asia/Tashkent for all challenge day boundaries.
+
+Display:
+- Challenge start date
+- Challenge end date
+- Current challenge day
+- Days completed
+- Days remaining
+- Overall progress
+
+Generate or derive the current challenge day reliably. Do not reset challenge progress when the application reloads, the user logs out, or the device restarts.
+
+Historical data must remain available for the entire challenge and afterward.
+
+When the challenge ends:
+- Preserve all previous records.
+- Show a clear challenge-completed state.
+- Do not silently begin a new challenge.
+- Allow the user to review their results.
+- Allow a new challenge only through an explicit user action.
+
+Prevent accidental duplicate challenge creation.
+
+==================================================
+7. DAILY TASK ENGINE AND LOCKING RULES
+==================================================
+
+This is a critical feature. Implement it as real business logic, not just visual labels.
+
+Users create tasks for a specific challenge date.
+
+A task may contain:
+- Title
+- Category: SAT, English, Fitness, or General
+- Scheduled date
+- Optional start time
+- Optional reminder
+- Optional description
+- Optional estimated duration
+- Optional priority
+- Completion status
+- Carry-forward preference
+- Creation timestamp
+- Completion timestamp
+- Original task ID when carried forward
+
+Task states:
+- PENDING
+- COMPLETED
+- MISSED
+- LOCKED
+- ARCHIVED
+
+Daily deadline:
+- A task assigned to a challenge date can be completed on that date.
+- By default, its completion window closes at 23:59:59 in Asia/Tashkent.
+- At the next local calendar day, every incomplete task for the previous date becomes MISSED and LOCKED.
+- Respect an optional custom deadline if the user explicitly sets one.
+- Never allow a user to mark an expired task as newly completed through the normal interface.
+- Show a clear explanation when a task is locked.
+- Preserve all missed tasks in historical records.
+- Do not delete task history to make the dashboard look better.
+
+Carry-forward behavior:
+- Incomplete tasks should move to the following day as new pending task instances.
+- Preserve the original task as MISSED and LOCKED in its historical date.
+- The new instance must display a subtle “O‘tgan kundan ko‘chirildi” label.
+- Store the relationship between the original and carried task.
+- Never create duplicate carry-forward instances for the same originating task and date.
+- If a carried task is still incomplete, it may be carried forward again according to its carry-forward setting.
+- Default carry-forward to ON for user-created tasks.
+- Let the user disable carry-forward for tasks that must stay on a specific day.
+- Completed tasks must never be carried forward.
+- Allow the user to archive a carried-forward task.
+- Do not silently replace a new scheduled task with an older carried-forward task.
+
+Completion:
+- A tick/check action changes a valid pending task to COMPLETED.
+- Display the completion time.
+- Update daily and overall progress immediately.
+- Save the change persistently.
+- Prevent double completion events and duplicate database records.
+
+Deadline enforcement:
+- Use consistent client-side validation for instant UI feedback.
+- Validate completion attempts against the authoritative server time when connected.
+- Implement appropriate database RPC or server-side validation for deadline-sensitive updates.
+- Handle disconnected devices carefully without claiming that an unsynchronized offline completion is definitively server-verified.
+- Never rely only on CSS or hidden buttons to enforce locking.
+
+Daily progress must be calculated from actual tasks assigned to that date. Do not count missing plans as completed tasks.
+
+==================================================
+8. DASHBOARD
+==================================================
+
+Dashboard should focus on today. It must not show every historical record at once.
+
+At the top show:
+- Greeting
+- Today's full date in Uzbek
+- Current challenge day
+- Challenge progress
+- Today's overall completion rate
+
+Create a compact daily progress summary.
+
+Show separate sections for:
+- Today's SAT and English tasks
+- Today's Fitness tasks
+- Any other user-created daily tasks
+- Sleep status
+- Next upcoming reminder
+- Quick expense entry
+- Quick access to playlists
+
+Every daily task must display:
+- Title
+- Category icon
+- Optional scheduled time
+- Status
+- Checkbox or completion action
+- Lock indicator when applicable
+
+Actions:
+- Add task
+- Edit task before its deadline
+- Complete task
+- Open task details
+- View today's history
+
+Show only appropriate tasks for today's date in the main daily checklist.
+
+Do not display invented tasks on an empty day.
+
+Empty state:
+If no task has been entered, show a clean message such as:
+“Bugungi rejang hali kiritilmagan.”
+
+Provide a useful action to add a plan.
+
+When no tasks are planned, do not show a false 0% success badge that implies the user failed assigned tasks. Distinguish “reja kiritilmagan” from “reja bajarilmagan.”
+
+==================================================
+9. SAT & ENGLISH MODULE
+==================================================
+
+The user wants to write the SAT and English topics they intend to study. Do not generate study material automatically.
+
+Create a dedicated SAT & English page.
+
+Page header:
+- Module title
+- Current challenge day
+- Study progress
+- 10-mock progress
+
+Show a clear 10-mock tracker:
+Mock 01
+Mock 02
+Mock 03
+Mock 04
+Mock 05
+Mock 06
+Mock 07
+Mock 08
+Mock 09
+Mock 10
+
+Each mock has:
+- Status: Not started, In progress, Completed
+- Planned date
+- Completion date
+- Optional total score
+- Optional Reading and Writing score
+- Optional Math score
+- Optional duration
+- Optional notes
+
+Scores are manually entered by the user. Do not invent them.
+
+Validate score ranges and make them configurable if required by the selected testing format. For a standard SAT tracker, total score can be between 400 and 1600, and section scores can be between 200 and 800.
+
+Marking a mock as completed must update the progress counter. Score entry and task completion should be consistent.
+
+Display:
+“0 / 10 mock bajarildi”
+with the value updating automatically.
+
+Allow the user to add, edit, and remove planned topic entries before they are locked.
+
+Each study task can include:
+- SAT or English
+- Topic title
+- Planned date
+- Optional start time
+- Estimated duration
+- Notes
+- Link to a mock, if relevant
+- Completion checkbox
+- Optional reminder
+- Carry-forward setting
+
+Example task names are illustrative only. Do not preload them as real user tasks:
+- SAT Reading — Inference Questions
+- SAT Math — Quadratic Equations
+- English — Grammar Revision
+- Complete Mock 01
+
+The user must be able to create their own topics and schedule them for each day.
+
+Create a weekly and calendar-style view of study plans.
+
+Show historical task status without permitting unauthorized completion of locked tasks.
+
+Add compact summary cards:
+- Topics completed
+- Study time recorded
+- Mocks completed
+- Latest recorded mock score, if one exists
+
+If no score exists, show an empty state instead of fabricated numbers.
+
+==================================================
+10. FITNESS MODULE
+==================================================
+
+Create a clean Fitness page.
+
+At the top, display weekday selectors for:
+- Dushanba
+- Seshanba
+- Chorshanba
+- Payshanba
+- Juma
+- Shanba
+- Yakshanba
+
+Use short localized labels on narrow screens when needed.
+
+The user selects a weekday or date and writes their own planned exercises and activities.
+
+A fitness task can contain:
+- Exercise/activity name
+- Optional sets
+- Optional repetitions
+- Optional duration
+- Optional rest duration
+- Optional notes
+- Assigned weekday or date
+- Completion checkbox
+- Optional reminder
+- Carry-forward setting
+
+Do not assume that every day requires a workout. Allow rest days.
+
+Allow the user to:
+- Create a task for one day
+- Edit the weekly workout plan
+- Set a recurring weekly schedule
+- Mark a task completed
+- Review locked and missed workouts
+- Record the actual workout duration
+- Record optional progress notes
+- Copy a workout to another day manually
+
+When a date changes, display that date's planned tasks.
+
+Apply the same deadline and locking system as the Daily Task Engine.
+
+Do not change old historical records when a recurring template is edited. New template changes should affect future generated instances only.
+
+Display:
+- Planned activities
+- Completed activities
+- Workout minutes if recorded
+- Weekly completion percentage
+- Missed sessions
+- Progress during the challenge
+
+Do not fabricate workout metrics or recommend dangerous exercise routines.
+
+The user is responsible for defining the workout plan.
+
+==================================================
+11. SLEEP TRACKER
+==================================================
+
+Create a separate Sleep Tracker page.
+
+Create one sleep record for each challenge date. Historical records should remain individually accessible.
+
+Show a vertical timeline or list of daily sleep cards:
+- Challenge day number
+- Calendar date
+- Bedtime
+- Wake-up time
+- Total sleep duration
+- Optional notes
+- Sleep target comparison
+
+Future dates must not appear as already completed records.
+
+The user records:
+- Bedtime
+- Wake-up time
+- Optional sleep notes
+
+Calculate the sleep duration automatically.
+
+Correctly handle sleep that crosses midnight, such as:
+23:00 to 07:00.
+
+Handle invalid or incomplete entries without displaying incorrect calculations.
+
+Allow records to be edited according to the application's documented history-editing policy. Changes must not silently change challenge dates.
+
+Provide:
+- Daily sleep duration
+- Weekly average
+- Challenge-wide trend
+- Comparison against the user's configurable sleep target
+- A line chart
+- A daily history list
+
+Never invent missing sleep values. Missing logs must remain missing.
+
+This is a personal tracking feature, not a medical diagnostic system.
+
+==================================================
+12. MUSIC AND LOCAL AUDIO FILES
+==================================================
+
+Create a dedicated Music page with two separate playlists:
+- Fitness Playlist
+- SAT & Study Playlist
+
+The user must be able to select audio files from their own device.
+
+Supported behavior:
+- Select audio files using the platform's file picker.
+- Add multiple tracks.
+- Display file or track names.
+- Display available metadata when possible.
+- Remove tracks.
+- Reorder tracks.
+- Play and pause.
+- Previous and next track.
+- Seek through a track.
+- Display playback progress.
+- Optional shuffle.
+- Optional repeat.
+- Keep Fitness and Study playlists separate.
+- Save playlist metadata persistently.
+
+Do not require a third-party streaming service or external song library.
+
+Audio source:
+- Web: use an appropriate browser file-selection and playback implementation.
+- Android: use local file access and a maintained native audio solution.
+
+Android background playback is mandatory for the native app:
+- Playback should continue when the screen is locked or the app is backgrounded, subject to Android restrictions and user settings.
+- Add native media-session or equivalent media controls where supported.
+- Respect audio focus and interruptions.
+- Handle missing files and denied permissions.
+- Avoid unbounded background services.
+- Stop or release playback resources appropriately.
+
+Do not pretend ordinary browser audio guarantees playback after the browser tab is closed.
+
+Do not implement background playback using only a hidden web audio element if it cannot meet Android background requirements.
+
+Verify that the selected audio plugin is maintained and compatible with the actual Capacitor and Android versions. If no suitable plugin exists, implement a properly scoped native Android playback service.
+
+Default privacy behavior:
+- Keep the selected music files locally on the device.
+- Store playlist metadata separately from the actual file content.
+- Do not upload personal music to cloud storage without an explicit user choice.
+- Handle a missing local file with a clear message.
+
+On the web version, explain limitations when a browser cannot preserve access to a selected local file after reload.
+
+==================================================
+13. DAILY EXPENSE TRACKER
+==================================================
+
+Create a separate Expenses page.
+
+The user can record each expense using:
+- Amount
+- Currency, default UZS
+- Category
+- Date
+- Optional description
+- Optional notes
+
+Initial suggested categories:
+- Food
+- Transport
+- Education
+- Fitness
+- Personal
+- Other
+
+These are editable categories, not predefined expenses.
+
+Required functionality:
+- Add an expense.
+- Edit an expense.
+- Delete an expense after confirmation.
+- View the transaction history.
+- Filter by date range.
+- Filter by category.
+- Show daily totals.
+- Show weekly totals.
+- Show monthly totals.
+- Show category breakdown.
+- Show the three-month challenge total.
+
+Validate amounts and currencies. Never silently convert currencies using a made-up exchange rate.
+
+Use real stored transactions to calculate totals.
+
+Make the expense entry form compact and convenient on mobile.
+
+==================================================
+14. ANALYTICS MODULE
+==================================================
+
+Build a dedicated Analytics page.
+
+Use responsive, readable charts with a consistent design system.
+
+Provide filters:
+- Today
+- Last 7 days
+- Last 30 days
+- Entire challenge
+- Custom date range
+
+The selected date range must affect all relevant visualizations and summary values.
+
+Create separate analytics sections.
+
+A. Overall progress
+- Total tasks scheduled
+- Completed tasks
+- Missed tasks
+- Current completion percentage
+- Challenge progress
+- Daily completion trend
+
+Clearly distinguish completed, pending, missed, locked, and unplanned states.
+
+B. SAT and English
+- Topics planned
+- Topics completed
+- Completion percentage
+- Recorded study duration
+- Mock completion: X / 10
+- Mock scores by date, when entered
+- Optional SAT section score charts
+
+C. Fitness
+- Workouts planned
+- Workouts completed
+- Missed activities
+- Workout duration, if recorded
+- Weekly activity chart
+- Challenge trend
+
+D. Sleep
+- Daily sleep duration
+- Weekly average
+- Sleep target comparison
+- Trend line
+- Missing sleep logs clearly represented
+
+E. Expenses
+- Total expenditure
+- Daily expenses
+- Weekly and monthly totals
+- Spending by category
+- Expense trend
+
+F. Combined Dashboard Analytics
+Provide a high-level summary of the main goals:
+- Study progress
+- Fitness task completion
+- Sleep logging consistency
+- Expense total
+
+Calculate every metric using actual database records and the selected date range.
+
+Do not hardcode sample values in production analytics.
+
+Charts must include:
+- Meaningful titles
+- Clear axes and labels
+- Tooltips where helpful
+- Responsive layouts
+- Empty states when no data exists
+- Accessible alternatives or data summaries
+
+Never display a successful result when the records do not support it.
+
+==================================================
+15. NOTIFICATIONS AND DAILY PLANNING REMINDERS
+==================================================
+
+Implement real device notifications where the platform supports them.
+
+Required notification types:
+1. Task reminder at the configured time.
+2. Daily planning reminder.
+3. Reminder that SAT/English has no plan for today.
+4. Reminder that Fitness has no plan for today.
+5. Optional reminder for sleep logging.
+6. Optional reminder for a task that is approaching its deadline.
+
+The daily planning reminder time must be configurable.
+
+Planning reminder logic:
+- At the configured time, check whether the user has created a plan for SAT/English and Fitness for the current challenge date.
+- If a category has no plan, send one appropriate local notification for that category.
+- Do not repeatedly spam the user about the same missing category on the same day.
+- If the user has already created a plan, do not send the missing-plan notification for that category.
+- Reschedule or cancel relevant future notifications when tasks are edited or removed.
+- Record notification scheduling state where necessary to avoid duplicate scheduling.
+
+Allow notification preferences to be changed in Settings.
+
+Notification examples:
+“Bugungi SAT rejangni kiritishni unutma.”
+“Bugungi Fitness rejang hali kiritilmagan.”
+“Vazifang uchun belgilangan vaqt yaqinlashmoqda.”
+
+Platform requirements:
+- Request notification permission at an appropriate time.
+- Explain permission denial clearly.
+- On Android, use the current native notification APIs.
+- Handle the appropriate Android notification permission.
+- Request exact-alarm capability only when genuinely needed and permitted.
+- Handle app restarts and notification rescheduling.
+- Use the selected local timezone consistently.
+- Do not promise delivery when the device is powered off or the operating system prevents delivery.
+- Show a clear status when notifications are unavailable or disabled.
+
+Do not use a server-side polling loop as a replacement for local reminders.
+
+When the application runs in a desktop browser, explain that browser notification support and background execution differ from native Android behavior.
+
+==================================================
+16. SETTINGS AND PROFILE
+==================================================
+
+Create a polished Settings page.
+
+Sections:
+- Profile
+- Challenge settings
+- Daily planning reminder time
+- Notification preferences
+- Sleep target
+- Currency
+- Timezone
+- Task carry-forward preferences
+- Audio settings
+- Data and privacy
+- Logout
+
+Challenge dates must not be accidentally changed.
+
+If the user changes the start date after entering records, display a clear warning and require confirmation. Avoid destructive changes.
+
+Provide a way to export personal data as JSON or CSV where appropriate.
+
+Use a confirmation dialog before deleting account data or performing destructive operations.
+
+If account deletion is implemented, it must follow a secure, explicit deletion flow. Never offer a fake deletion button.
+
+==================================================
+17. DATABASE AND DATA MODEL
+==================================================
+
+Design a normalized PostgreSQL schema with appropriate indexes, constraints, foreign keys, timestamps, and Row Level Security.
+
+At minimum, define suitable tables for:
+
+1. profiles
+2. challenges
+3. tasks
+4. weekly fitness templates, if needed
+5. mock tests
+6. sleep records
+7. expenses
+8. expense categories, if user-editable
+9. playlists
+10. playlist tracks or local-track metadata
+11. notification preferences
+12. any required synchronization or carry-forward metadata
+
+Example logical fields:
+
+profiles:
+- id matching the authenticated Supabase user
+- display_name
+- timezone
+- preferred_currency
+- created_at
+- updated_at
+
+challenges:
+- id
+- user_id
+- start_date
+- end_date
+- status
+- created_at
+- updated_at
+
+tasks:
+- id
+- user_id
+- challenge_id
+- title
+- category
+- scheduled_date
+- scheduled_time
+- deadline_at, if using an explicit custom deadline
+- status
+- completed_at
+- estimated_minutes
+- notes
+- carry_forward
+- carried_from_task_id
+- created_at
+- updated_at
+
+mock_tests:
+- id
+- user_id
+- challenge_id
+- mock_number
+- status
+- planned_date
+- completed_at
+- total_score
+- reading_writing_score
+- math_score
+- duration_minutes
+- notes
+
+sleep_records:
+- id
+- user_id
+- challenge_id
+- sleep_date
+- bedtime
+- wake_time
+- duration_minutes, derived or consistently maintained
+- notes
+- created_at
+- updated_at
+
+expenses:
+- id
+- user_id
+- challenge_id
+- amount
+- currency
+- category
+- expense_date
+- description
+- created_at
+- updated_at
+
+Adjust the design when needed, but keep relationships clear and maintainable.
+
+Database requirements:
+- Generate SQL migration files.
+- Create indexes for common user/date queries.
+- Use foreign keys correctly.
+- Enforce appropriate uniqueness rules, including mock numbers within a challenge.
+- Implement Row Level Security on every user-owned table.
+- Ensure users can only access their own records.
+- Enforce authorization for reads, inserts, updates, and deletes.
+- Never trust a user ID supplied by the client without checking the authenticated user.
+- Implement secure handling for deadline-sensitive task completion.
+- Document the schema and setup process.
+
+Local audio file paths must not be treated as universally accessible cloud URLs. Keep device-specific audio metadata separate from the actual file.
+
+==================================================
+18. DATA PERSISTENCE AND ERROR HANDLING
+==================================================
+
+User data must not disappear when the app reloads or closes.
+
+Use Supabase as the persistent source of truth for account-associated records.
+
+Implement sensible loading, saving, error, and retry states.
+
+Requirements:
+- Save form changes correctly.
+- Avoid creating duplicate records during retries.
+- Keep data after logout and subsequent login.
+- Load the authenticated user's data after session restoration.
+- Never leak one account's information to another.
+- Handle network outages gracefully.
+- Do not show “Saved successfully” before a write has actually succeeded.
+- Explain when data has not synchronized.
+- Do not silently discard unsaved changes.
+
+Provide local caching for appropriate data and an explicit synchronization strategy if offline support is implemented.
+
+For offline task completion, distinguish locally recorded actions from server-confirmed actions. Reconcile deadlines consistently when reconnecting.
+
+Do not promise unrestricted offline operation unless it is implemented and tested.
+
+==================================================
+19. PROJECT ARCHITECTURE
+==================================================
+
+Use a clean, modular project structure similar to:
+
+src/
+  app/
+    App.tsx
+    router.tsx
+    providers.tsx
+  components/
+    layout/
+    navigation/
+    ui/
+    forms/
+    charts/
+    tasks/
+  pages/
+    LoginPage.tsx
+    RegisterPage.tsx
+    OnboardingPage.tsx
+    DashboardPage.tsx
+    StudyPage.tsx
+    FitnessPage.tsx
+    SleepPage.tsx
+    MusicPage.tsx
+    ExpensesPage.tsx
+    AnalyticsPage.tsx
+    SettingsPage.tsx
+  features/
+    auth/
+    challenges/
+    tasks/
+    study/
+    fitness/
+    sleep/
+    music/
+    expenses/
+    analytics/
+    notifications/
+  lib/
+    supabase.ts
+    dates.ts
+    validation.ts
+    notifications/
+    audio/
+  hooks/
+  types/
+  styles/
+  tests/
+
+supabase/
+  migrations/
+
+public/
+  icons/
+
+capacitor configuration files
+.env.example
+README.md
+
+Adjust the structure when useful, but keep it understandable.
+
+Use reusable components for:
+- Task cards
+- Daily progress
+- Empty states
+- Confirmation dialogs
+- Forms
+- Date selectors
+- Analytics charts
+- Status indicators
+- Toast messages
+
+Keep business logic outside presentation components when appropriate.
+
+Do not suppress TypeScript errors to make the build pass.
+
+==================================================
+20. TESTING REQUIREMENTS
+==================================================
+
+Write tests for critical business logic.
+
+Unit tests must cover:
+- Three-month challenge date calculation
+- Month-end and leap-year cases
+- Asia/Tashkent date boundaries
+- Task completion before the deadline
+- Task locking after the deadline
+- Prevention of late completion
+- Carry-forward creation
+- Prevention of duplicate carry-forward records
+- Completion and missed-task counts
+- Sleep duration across midnight
+- Invalid sleep records
+- Mock score validation
+- Expense totals and category aggregation
+- Analytics date filters
+
+Integration and UI tests should cover:
+- Registration and login flow where test credentials are available
+- Initial onboarding
+- Creating a SAT task
+- Completing a valid task
+- Showing an overdue task as locked
+- Carry-forward to the next day
+- Creating a fitness schedule
+- Recording sleep
+- Recording an expense
+- Recording a mock score
+- Analytics empty states
+- Mobile navigation
+- Notification permission failure
+- Missing audio-file behavior
+
+Do not make tests depend on unpredictable current timestamps. Use a controlled clock or mocked dates.
+
+Use a test Supabase project or a safe, documented testing strategy. Never run destructive tests against real personal data.
+
+==================================================
+21. DEFINITION OF DONE
+==================================================
+
+The application is not finished until the following are true:
+
+[ ] A user can create an account and sign in.
+[ ] The challenge starts on the selected date.
+[ ] The application works on desktop and mobile screen sizes.
+[ ] Desktop has a sidebar.
+[ ] Mobile has a bottom navigation bar.
+[ ] Users can create their own daily SAT and English tasks.
+[ ] Users can schedule their own Fitness tasks.
+[ ] Tasks can be completed within their permitted window.
+[ ] Expired tasks become locked and remain in history.
+[ ] Incomplete tasks are carried forward according to their settings.
+[ ] Duplicate carry-forward tasks are prevented.
+[ ] The 10-mock tracker works and accepts real user-entered results.
+[ ] Sleep records persist and durations calculate correctly.
+[ ] Users can select audio files from their device.
+[ ] Android background audio uses a genuine native-compatible implementation.
+[ ] Fitness and SAT playlists are separate.
+[ ] Daily expenses persist and aggregate accurately.
+[ ] Analytics uses real records.
+[ ] Missing daily plans can trigger configured native reminders.
+[ ] Task reminders can be scheduled and managed.
+[ ] Notification permission denial is handled.
+[ ] Database authorization and RLS are implemented.
+[ ] Secrets are not hardcoded.
+[ ] Empty, loading, error, and success states exist.
+[ ] There are no nonfunctional buttons.
+[ ] No personal data or analytics values are fabricated.
+[ ] The production build completes successfully.
+[ ] Tests and lint checks run, with failures fixed or explicitly documented.
+[ ] The README explains setup, environment variables, database migrations, testing, deployment, and Android APK generation.
+
+==================================================
+22. FINAL EXECUTION INSTRUCTIONS
+==================================================
+
+Work in implementation order:
+
+Phase 1:
+Inspect the project or initialize the codebase. Set up the design system, routing, environment configuration, and responsive application shell.
+
+Phase 2:
+Implement Supabase authentication, database schema, migrations, RLS, challenge onboarding, and persistent data access.
+
+Phase 3:
+Implement the daily task engine, deadlines, locking, missed states, carry-forward behavior, and Dashboard.
+
+Phase 4:
+Implement SAT & English, the 10-mock tracker, and the Fitness planner.
+
+Phase 5:
+Implement Sleep Tracker, Expenses, and Analytics.
+
+Phase 6:
+Implement Music, device file access, Android background audio, notifications, and platform-specific handling.
+
+Phase 7:
+Complete Settings, data export, error handling, accessibility, and responsive polish.
+
+Phase 8:
+Run tests, type checking, lint, and production build. Fix errors. Inspect all navigation and interactive controls.
+
+Phase 9:
+Prepare Android configuration, synchronize native plugins, and document the APK build process. If the environment supports an actual Android build, build and verify it. Do not claim that an APK was built unless the build was successful.
+
+Do not leave critical features as TODO comments, fake data, nonfunctional controls, or decorative-only screens.
+
+If time or environment limitations prevent completing a feature, implement everything possible, isolate the remaining limitation, and document the exact blocker.
+
+At the end, provide:
+1. A concise summary of implemented features.
+2. The important files and project structure.
+3. Environment variables that the owner must configure.
+4. Supabase setup and SQL migration instructions.
+5. Commands to run and test the web app.
+6. Commands to synchronize and build Android.
+7. Any remaining limitation, especially for native notifications or background audio.
+
+Prioritize correctness, maintainability, clean design, user privacy, and reliable daily task behavior over unnecessary complexity.
+
+Now begin by inspecting the workspace and implementing IRONMAN.

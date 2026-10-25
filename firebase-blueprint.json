@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and configuration details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "display_name": { "type": "string", "maxLength": 100 },
+        "timezone": { "type": "string", "maxLength": 50 },
+        "preferred_currency": { "type": "string", "maxLength": 10 },
+        "created_at": { "type": "string", "maxLength": 64 },
+        "updated_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "display_name"]
+    },
+    "FocusSession": {
+      "title": "FocusSession",
+      "description": "Tracked study and workout focus sessions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "user_id": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 12 },
+        "start_time": { "type": "string", "maxLength": 64 },
+        "end_time": { "type": "string", "maxLength": 64 },
+        "duration_seconds": { "type": "number" },
+        "task_name": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 50 },
+        "tasks_completed": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "created_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "user_id", "date", "duration_seconds"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "User daily disciplines and tasks",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "user_id": { "type": "string", "maxLength": 128 },
+        "challenge_id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 50 },
+        "scheduled_date": { "type": "string", "maxLength": 12 },
+        "scheduled_time": { "type": "string", "maxLength": 10 },
+        "deadline_at": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "maxLength": 20 },
+        "completed_at": { "type": "string", "maxLength": 64 },
+        "estimated_minutes": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "carry_forward": { "type": "boolean" },
+        "carried_from_task_id": { "type": "string", "maxLength": 128 },
+        "created_at": { "type": "string", "maxLength": 64 },
+        "updated_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "user_id", "title", "status"]
+    },
+    "Challenge": {
+      "title": "Challenge",
+      "description": "3-month Ironman discipline challenge record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "user_id": { "type": "string", "maxLength": 128 },
+        "start_date": { "type": "string", "maxLength": 12 },
+        "end_date": { "type": "string", "maxLength": 12 },
+        "status": { "type": "string", "maxLength": 20 },
+        "created_at": { "type": "string", "maxLength": 64 },
+        "updated_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "user_id", "start_date", "end_date", "status"]
+    },
+    "SleepRecord": {
+      "title": "SleepRecord",
+      "description": "Nightly sleep tracking records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "user_id": { "type": "string", "maxLength": 128 },
+        "challenge_id": { "type": "string", "maxLength": 128 },
+        "sleep_date": { "type": "string", "maxLength": 12 },
+        "bedtime": { "type": "string", "maxLength": 10 },
+        "wake_time": { "type": "string", "maxLength": 10 },
+        "duration_minutes": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 500 },
+        "created_at": { "type": "string", "maxLength": 64 },
+        "updated_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "user_id", "sleep_date", "duration_minutes"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Daily expense and budget entries",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "user_id": { "type": "string", "maxLength": 128 },
+        "challenge_id": { "type": "string", "maxLength": 128 },
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "category": { "type": "string", "maxLength": 50 },
+        "expense_date": { "type": "string", "maxLength": 12 },
+        "description": { "type": "string", "maxLength": 200 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "created_at": { "type": "string", "maxLength": 64 },
+        "updated_at": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "user_id", "amount", "expense_date", "description"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Stores user profiles keyed by their authentication UID"
+    },
+    "/focus_sessions/{sessionId}": {
+      "schema": "FocusSession",
+      "description": "Stores focus and stopwatch timer sessions"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Stores user daily tasks and disciplines"
+    },
+    "/challenges/{challengeId}": {
+      "schema": "Challenge",
+      "description": "Stores 90-day challenge progress states"
+    },
+    "/sleep_records/{recordId}": {
+      "schema": "SleepRecord",
+      "description": "Stores nightly sleep tracking records"
+    },
+    "/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Stores user expense records"
+    }
+  }
+}

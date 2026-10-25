@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">IRONMAN</string>
+    <string name="title_activity_main">IRONMAN</string>
+    <string name="package_name">uz.ironman.app</string>
+    <string name="custom_url_scheme">uz.ironman.app</string>
+</resources>
