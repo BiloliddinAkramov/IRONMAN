@@ -29,14 +29,44 @@ import {
   AlertTriangle,
   LogOut,
   CheckCircle2,
+  Smartphone,
+  Copy,
+  Check,
+  RefreshCw,
+  ExternalLink,
+  QrCode,
 } from 'lucide-react';
+import { QRCodeView } from '../components/ui/QRCodeView';
 
 export const SettingsPage: React.FC = () => {
-  const { user, profile, updateProfile, signOut, isConfigured } = useAuth();
+  const { user, profile, updateProfile, regenerateSyncCode, signOut, isConfigured } = useAuth();
   const { activeChallenge, createChallenge } = useChallenge();
   const { sleepTargetHours, updateSleepTarget } = useSleep();
   const { tasks } = useTasks();
   const { expenses } = useExpenses();
+
+  // Mobile Sync State
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [isRegeneratingCode, setIsRegeneratingCode] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+
+  const syncCode = profile?.sync_code || '849201';
+  const mobileUrl = `${window.location.origin}/mobile?code=${syncCode}`;
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(syncCode);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  const handleRegenerate = async () => {
+    setIsRegeneratingCode(true);
+    try {
+      await regenerateSyncCode();
+    } finally {
+      setIsRegeneratingCode(false);
+    }
+  };
 
   // Profile form state
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
@@ -368,7 +398,116 @@ export const SettingsPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 6. Sign Out & Account Action */}
+      {/* 6. Mobil Tezkor Kirish PIN-kodi (Telefon uchun) */}
+      <div className="bg-white text-slate-900 rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+              <Smartphone className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-slate-900">
+                  Telefon uchun tezkor kirish kodi
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  Mobile PIN
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Ushbu 6 xonali kod orqali telefoningizda shaxsiy analitika va bugungi vazifalarga bir zumda ulaning
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowQrModal(true)}
+              className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 cursor-pointer"
+            >
+              <QrCode className="w-4 h-4 mr-1.5 text-blue-600" />
+              QR-kod
+            </Button>
+            <a
+              href={`/mobile?code=${syncCode}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Telefonda ko‘rish
+            </a>
+          </div>
+        </div>
+
+        {/* PIN Display Box */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl bg-slate-50 border border-slate-200">
+          <div>
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Sizning 6 xonali ulanish kodingiz:
+            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl sm:text-4xl font-mono font-black tracking-[0.25em] text-blue-600 select-all">
+                {syncCode}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="p-2.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 shadow-2xs transition-colors cursor-pointer"
+                title="Kodni nusxalash"
+              >
+                {copiedCode ? <Check className="w-5 h-5 text-emerald-600" /> : <Copy className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={isRegeneratingCode}
+              onClick={handleRegenerate}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRegeneratingCode ? 'animate-spin text-blue-600' : ''}`} />
+              <span>Yangi PIN yaratish</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Features / Explanations */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-700">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <strong className="text-slate-900 block font-semibold flex items-center gap-1.5">
+              <span>📊</span> Shaxsiy Analitika
+            </strong>
+            <p className="text-slate-500 leading-relaxed text-[11px]">
+              Telefonda kiring: bugungi fokus vaqti, intizom foizi, seriyalar va chaqiriq kunlari bir zumda aks etadi.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <strong className="text-slate-900 block font-semibold flex items-center gap-1.5">
+              <span>💻</span> Reja kompyuterda tuziladi
+            </strong>
+            <p className="text-slate-500 leading-relaxed text-[11px]">
+              Vazifalar, mashg‘ulotlar va muddatlar kompyuteringizda rejalashtiriladi (chalg‘imaslik uchun).
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <strong className="text-slate-900 block font-semibold flex items-center gap-1.5">
+              <span>✅</span> Telefonda tick qilish
+            </strong>
+            <p className="text-slate-500 leading-relaxed text-[11px]">
+              Kun davomida bajargan ishlaringizni telefoningizdan bir tegishda (tick ✅) tasdiqlab borasiz.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 7. Sign Out & Account Action */}
       <div className="bg-white rounded-xl border border-red-200 p-5 shadow-xs space-y-4">
         <div className="flex items-center gap-2 border-b border-red-100 pb-3 text-red-600">
           <AlertTriangle className="w-4 h-4" />
@@ -506,6 +645,38 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
         </form>
+      </Modal>
+
+      {/* Mobile QR Code Modal */}
+      <Modal
+        isOpen={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        title="Mobil Hamroh QR-kodi"
+      >
+        <div className="space-y-4 text-center">
+          <p className="text-xs text-slate-500">
+            Telefoningiz kamerasi orqali QR-kodni skanerlang va to‘g‘ridan-to‘g‘ri shaxsiy intizom rejimiga ulaning:
+          </p>
+
+          <QRCodeView value={mobileUrl} size={200} className="mx-auto" />
+
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+            <span className="text-slate-500 block mb-1">Tezkor PIN-kod:</span>
+            <span className="font-mono text-2xl font-black tracking-widest text-blue-600 select-all">
+              {syncCode}
+            </span>
+          </div>
+
+          <div className="flex justify-end pt-2 border-t">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowQrModal(false)}
+            >
+              Yopish
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       {/* Logout Confirm Dialog */}

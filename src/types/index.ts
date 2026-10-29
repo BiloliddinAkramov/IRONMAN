@@ -9,6 +9,60 @@ export interface UserProfile {
   preferred_currency: string;
   created_at: string;
   updated_at: string;
+  sync_code?: string;
+}
+
+export interface MobileTaskItem {
+  id: string;
+  title: string;
+  category: TaskCategory;
+  scheduled_date: string;
+  scheduled_time?: string;
+  estimated_minutes: number;
+  status: TaskStatus;
+  completed_at?: string;
+  notes?: string;
+}
+
+export interface MobileDailyStat {
+  date: string;
+  dayName: string;
+  completed: number;
+  total: number;
+  focusMinutes: number;
+  rate: number;
+}
+
+export interface MobileAnalyticsSummary {
+  today_focus_seconds: number;
+  today_focus_formatted: string;
+  today_tasks_completed: number;
+  today_tasks_total: number;
+  completion_rate: number;
+  current_streak_days: number;
+  challenge_day_number: number;
+  challenge_total_days: number;
+  challenge_percent: number;
+  category_breakdown: { [category: string]: number };
+  recent_days?: MobileDailyStat[];
+  sleep_hours?: number;
+  sleep_bedtime?: string;
+  sleep_wake_time?: string;
+  sleep_target_hours?: number;
+  total_expenses_month?: number;
+  completed_dates?: string[];
+  calendar_days?: { date: string; total: number; completed: number; dayNumber?: number }[];
+}
+
+export interface MobileSyncPayload {
+  sync_code: string;
+  user_id: string;
+  display_name: string;
+  today_date: string;
+  today_tasks: MobileTaskItem[];
+  all_recent_tasks?: MobileTaskItem[];
+  analytics: MobileAnalyticsSummary;
+  updated_at: string;
 }
 
 export interface Challenge {

@@ -6,6 +6,7 @@ import {
   BookOpen,
   Dumbbell,
   Moon,
+  Wallet,
   BarChart3,
   Music2,
   Settings,
@@ -13,11 +14,13 @@ import {
   Play,
   Pause,
   SkipForward,
+  Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../../features/auth/AuthContext';
 import { useChallenge } from '../../features/challenges/ChallengeContext';
 import { useAudio } from '../../features/audio/AudioContext';
 import { useTimer } from '../../features/timer/TimerContext';
+import { useMobileSyncPublisher } from '../../features/sync/useMobileSyncPublisher';
 
 import { IronmanLogo } from '../ui/IronmanLogo';
 import { PWAInstallButton } from '../ui/PWAInstallButton';
@@ -30,18 +33,31 @@ export const AppLayout: React.FC = () => {
   const { isActive: isTimerActive, isPaused: isTimerPaused, elapsedSeconds } = useTimer();
   const location = useLocation();
 
+  // Desktop real-time publisher to mobile companion
+  useMobileSyncPublisher();
+
   const primaryNavItems = [
     { to: '/', label: 'Bosh sahifa', icon: LayoutDashboard },
     { to: '/timer', label: 'Fokus Taymer', icon: Clock },
     { to: '/study', label: 'SAT va English', icon: BookOpen },
     { to: '/fitness', label: 'Fitness', icon: Dumbbell },
     { to: '/sleep', label: 'Uyqu', icon: Moon },
+    { to: '/expenses', label: 'Moliya', icon: Wallet },
     { to: '/analytics', label: 'Analitika', icon: BarChart3 },
   ];
 
   const secondaryNavItems = [
     { to: '/music', label: 'Musiqa', icon: Music2 },
     { to: '/settings', label: 'Sozlamalar', icon: Settings },
+  ];
+
+  const mobileNavItems = [
+    { to: '/', label: 'Bosh sahifa', icon: LayoutDashboard },
+    { to: '/mobile', label: 'Hamroh', icon: Smartphone },
+    { to: '/timer', label: 'Taymer', icon: Clock },
+    { to: '/study', label: 'Dars', icon: BookOpen },
+    { to: '/analytics', label: 'Analitika', icon: BarChart3 },
+    { to: '/settings', label: 'Profil', icon: Settings },
   ];
 
   const formatTimerShort = (totalSecs: number) => {
@@ -168,7 +184,15 @@ export const AppLayout: React.FC = () => {
       <header className="md:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-4 bg-white border-b border-slate-200">
         <IronmanLogo size="sm" />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <NavLink
+            to="/mobile"
+            className="flex items-center gap-1 px-2 py-1 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold active:scale-95 transition-all"
+            title="Mobil Hamroh (Faqat Bajarish)"
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>Hamroh</span>
+          </NavLink>
           <PWAInstallButton compact />
           {isTimerActive && location.pathname !== '/timer' && (
             <NavLink
@@ -252,7 +276,7 @@ export const AppLayout: React.FC = () => {
       {/* Mobile Bottom Navigation Bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)] select-none shadow-sm">
         <div className="flex items-center justify-around h-14 px-1">
-          {primaryNavItems.map((item) => {
+          {mobileNavItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
@@ -260,13 +284,13 @@ export const AppLayout: React.FC = () => {
                 to={item.to}
                 end={item.to === '/'}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center flex-1 h-full py-1 text-[11px] font-medium transition-colors ${
-                    isActive ? 'text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-900'
+                  `flex flex-col items-center justify-center flex-1 h-full py-1 text-[10px] font-medium transition-colors ${
+                    isActive ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-900'
                   }`
                 }
               >
                 <Icon className="w-5 h-5 mb-0.5" />
-                <span className="truncate max-w-[64px] text-center">{item.label}</span>
+                <span className="truncate max-w-[60px] text-center leading-none">{item.label}</span>
               </NavLink>
             );
           })}

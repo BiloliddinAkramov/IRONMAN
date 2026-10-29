@@ -17,6 +17,7 @@ import { MusicPage } from '../pages/MusicPage';
 import { ExpensesPage } from '../pages/ExpensesPage';
 import { AnalyticsPage } from '../pages/AnalyticsPage';
 import { SettingsPage } from '../pages/SettingsPage';
+import { MobileCompanionPage } from '../pages/MobileCompanionPage';
 
 import { IronmanLogo } from '../components/ui/IronmanLogo';
 
@@ -61,6 +62,9 @@ export const AppRouter: React.FC = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
+      {/* Mobile Companion Route (Accessed by 6-digit PIN code) */}
+      <Route path="/mobile" element={<MobileCompanionPage />} />
+
       {/* Onboarding */}
       <Route
         path="/onboarding"
@@ -87,6 +91,7 @@ export const AppRouter: React.FC = () => {
         <Route path="sleep" element={<SleepPage />} />
         <Route path="music" element={<MusicPage />} />
         <Route path="expenses" element={<ExpensesPage />} />
+        <Route path="finances" element={<ExpensesPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

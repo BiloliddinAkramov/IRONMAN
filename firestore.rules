@@ -20,6 +20,11 @@ service cloud.firestore {
       return id is string && id.size() > 0 && id.size() <= 128;
     }
 
+    // Mobile device instant synchronization (paired by 6-digit PIN)
+    match /mobile_sync/{syncCode} {
+      allow read, write: if syncCode.size() >= 4 && syncCode.size() <= 32;
+    }
+
     // User Profiles
     match /users/{userId} {
       allow get: if isOwner(userId);

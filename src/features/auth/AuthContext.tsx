@@ -13,6 +13,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, displayName: string) => Promise<{ error?: string; requiresEmailConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  regenerateSyncCode: () => Promise<string>;
   resetPasswordEmail: (email: string) => Promise<{ error?: string }>;
 }
 
@@ -20,6 +21,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_USER_KEY = 'ironman_local_user';
 const LOCAL_STORAGE_PROFILE_KEY = 'ironman_local_profile';
+
+export const generate6DigitPin = (): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -84,17 +89,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (rawUser && rawProfile) {
       try {
         const u = JSON.parse(rawUser);
+        const p: UserProfile = JSON.parse(rawProfile);
+        if (!p.sync_code) {
+          p.sync_code = generate6DigitPin();
+          localStorage.setItem(LOCAL_STORAGE_PROFILE_KEY, JSON.stringify(p));
+        }
         setUser(u);
-        setProfile(JSON.parse(rawProfile));
+        setProfile(p);
         // Background check cloud
         if (u.id) {
           firestorePersistence.getProfile(u.id).then((cloudProf) => {
-            if (cloudProf) setProfile(cloudProf);
+            if (cloudProf) {
+              if (!cloudProf.sync_code) {
+                cloudProf.sync_code = p.sync_code || generate6DigitPin();
+                firestorePersistence.saveProfile(cloudProf);
+              }
+              setProfile(cloudProf);
+            } else {
+              firestorePersistence.saveProfile(p);
+            }
           });
         }
       } catch (e) {
         console.warn('Failed to parse local auth cache:', e);
       }
+    } else {
+      // First default local session with fresh profile and sync code
+      const defaultUser = { id: 'ironman-user-main', email: 'biloliddin@ironman.uz' };
+      const defaultProfile: UserProfile = {
+        id: defaultUser.id,
+        display_name: 'Biloliddin',
+        timezone: 'Asia/Tashkent',
+        preferred_currency: 'UZS',
+        sync_code: generate6DigitPin(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(defaultUser));
+      localStorage.setItem(LOCAL_STORAGE_PROFILE_KEY, JSON.stringify(defaultProfile));
+      setUser(defaultUser);
+      setProfile(defaultProfile);
+      firestorePersistence.saveProfile(defaultProfile);
     }
   };
 
@@ -278,6 +313,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const regenerateSyncCode = async (): Promise<string> => {
+    const newCode = generate6DigitPin();
+    if (profile) {
+      const updated: UserProfile = {
+        ...profile,
+        sync_code: newCode,
+        updated_at: new Date().toISOString(),
+      };
+      setProfile(updated);
+      localStorage.setItem(LOCAL_STORAGE_PROFILE_KEY, JSON.stringify(updated));
+      await firestorePersistence.saveProfile(updated);
+    }
+    return newCode;
+  };
+
   const resetPasswordEmail = async (email: string): Promise<{ error?: string }> => {
     if (configured && supabase) {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -299,6 +349,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signUp,
         signOut,
         updateProfile,
+        regenerateSyncCode,
         resetPasswordEmail,
       }}
     >

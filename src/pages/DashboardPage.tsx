@@ -29,6 +29,7 @@ import {
   Flame,
   ChevronRight,
   Clock,
+  CheckCircle2,
 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
@@ -111,14 +112,18 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
 
-            <div>
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => handleOpenAdd('General')}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                className="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl items-center gap-1.5 shadow-sm hover:shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>Yangi vazifa</span>
               </button>
+              <div className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                <span>Telefonda faqat belgilash ✅</span>
+              </div>
             </div>
           </div>
 
@@ -156,8 +161,8 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4 Metric Cards Grid with Distinct Colors */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 4 Metric Cards Grid with Distinct Colors - Displayed on desktop, hidden on mobile */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4">
           <DashboardMetricCard
             label="BUGUNGI BAJARILISH"
             value={totalToday === 0 ? '—' : `${completionRate}%`}
@@ -220,6 +225,62 @@ export const DashboardPage: React.FC = () => {
           />
         </div>
 
+        {/* Mobile Top Visual Whole Ring Chart & Execution Badge */}
+        <div className="md:hidden bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-blue-600" />
+              Bugungi Intizom Analitikasi
+            </span>
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              {completionRate}% bajarildi
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 pt-1">
+            {/* Circular Ring Gauge */}
+            <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+              <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" className="text-slate-100" strokeWidth="7" stroke="currentColor" fill="transparent" />
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="32"
+                  className="text-blue-600 transition-all duration-500"
+                  strokeWidth="7"
+                  strokeDasharray={2 * Math.PI * 32}
+                  strokeDashoffset={2 * Math.PI * 32 * (1 - Math.min(100, Math.max(0, completionRate)) / 100)}
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="transparent"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-base font-black text-slate-900 leading-none">{completionRate}%</span>
+              </div>
+            </div>
+
+            <div className="flex-1 space-y-1.5 text-xs">
+              <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <span className="text-slate-500 font-semibold">Bajarildi:</span>
+                <strong className="text-emerald-600 font-bold">{completedToday} / {totalToday} ta</strong>
+              </div>
+              <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <span className="text-slate-500 font-semibold">Streak:</span>
+                <strong className="text-rose-600 font-bold flex items-center gap-1">
+                  <Flame className="w-3 h-3 fill-rose-500 text-rose-500" />
+                  {dayInfo?.dayNumber || 1}-kun
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-2 rounded-xl bg-blue-50/70 border border-blue-200/70 text-[11px] text-slate-600 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span>Telefonda vazifalarni faqat bajarilgan deb belgilaysiz (tick ✅)</span>
+          </div>
+        </div>
+
         {/* Empty State / Task Planner Area */}
         {activeDateTasks.length === 0 ? (
           <div className="bg-white rounded-2xl border border-slate-200/80 border-l-[5px] border-l-blue-600 p-8 sm:p-12 shadow-xs flex flex-col md:flex-row items-center justify-center gap-8">
@@ -236,7 +297,7 @@ export const DashboardPage: React.FC = () => {
               <div className="pt-1">
                 <button
                   onClick={() => handleOpenAdd('SAT')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                  className="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-xs transition-colors items-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Bugun uchun reja qo‘shish</span>
@@ -260,7 +321,7 @@ export const DashboardPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => handleOpenAdd('SAT')}
-                    className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1"
+                    className="hidden md:flex text-xs text-blue-600 font-semibold hover:underline items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Mavzu
@@ -294,7 +355,7 @@ export const DashboardPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => handleOpenAdd('Fitness')}
-                    className="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1"
+                    className="hidden md:flex text-xs text-emerald-600 font-semibold hover:underline items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Mashq
@@ -323,7 +384,7 @@ export const DashboardPage: React.FC = () => {
                   </h3>
                   <button
                     onClick={() => handleOpenAdd('General')}
-                    className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1"
+                    className="hidden md:flex text-xs text-blue-600 font-semibold hover:underline items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Qo‘shish

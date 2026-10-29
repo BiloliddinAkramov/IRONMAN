@@ -14,7 +14,11 @@ import {
   User,
   Dumbbell,
   TrendingUp,
+  Smartphone,
+  KeyRound,
+  AlertCircle,
 } from 'lucide-react';
+import { firestorePersistence } from '../lib/firestorePersistence';
 
 import { IronmanLogo } from '../components/ui/IronmanLogo';
 
@@ -42,11 +46,43 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode = 'login' }) =
   }, [location.pathname]);
 
   // Login form state
+  const [loginMethod, setLoginMethod] = useState<'email' | 'pin'>('email');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Phone PIN login state
+  const [phonePin, setPhonePin] = useState('');
+  const [pinLoading, setPinLoading] = useState(false);
+  const [pinError, setPinError] = useState<string | null>(null);
+
+  // Handle Phone PIN Submit
+  const handlePinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPinError(null);
+    const cleanPin = phonePin.replace(/\s+/g, '').trim();
+    if (cleanPin.length < 4) {
+      setPinError('Iltimos, kamida 4-6 xonali PIN kodni kiriting');
+      return;
+    }
+
+    setPinLoading(true);
+    try {
+      const data = await firestorePersistence.getMobileSync(cleanPin);
+      if (data) {
+        navigate(`/mobile?code=${cleanPin}`);
+      } else {
+        // Direct navigate anyway so user can retry or check offline fallback
+        setPinError('Ushbu kod bo‘yicha profil topilmadi. Kompyuterdagi kodni tekshiring.');
+      }
+    } catch (err: any) {
+      navigate(`/mobile?code=${cleanPin}`);
+    } finally {
+      setPinLoading(false);
+    }
+  };
 
   // Register form state
   const [regName, setRegName] = useState('');
@@ -152,110 +188,228 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode = 'login' }) =
             isRegister ? 'lg:opacity-0 lg:pointer-events-none' : 'opacity-100 pointer-events-auto'
           } ${isRegister ? 'hidden lg:flex' : 'flex'}`}
         >
-          <div className="max-w-md w-full mx-auto space-y-5 pt-16 lg:pt-8">
+          <div className="max-w-md w-full mx-auto space-y-4 pt-16 lg:pt-8">
             <div>
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-                Tizimga kirish
+                {loginMethod === 'pin' ? 'Telefon orqali kirish' : 'Tizimga kirish'}
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-                Kundalik odatlar, fitness va shaxsiy intizom rejangizni davom ettiring.
+                {loginMethod === 'pin'
+                  ? '6 xonali PIN kod orqali bugungi analitika va vazifalar ro‘yxatiga tezkor kiring.'
+                  : 'Kundalik odatlar, fitness va shaxsiy intizom rejangizni davom ettiring.'}
               </p>
             </div>
 
-            {loginError && (
-              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-medium animate-in fade-in">
-                {loginError}
-              </div>
-            )}
+            {/* Method Tabs: Email or Phone PIN */}
+            <div className="flex p-1 bg-slate-100 rounded-xl text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMethod('email');
+                  setPinError(null);
+                }}
+                className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${
+                  loginMethod === 'email'
+                    ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Email va parol
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMethod('pin');
+                  setLoginError(null);
+                }}
+                className={`flex-1 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  loginMethod === 'pin'
+                    ? 'bg-white text-blue-600 shadow-2xs font-bold'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>Telefon PIN (6 xonali)</span>
+              </button>
+            </div>
 
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                  EMAIL MANZIL
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    required
-                    autoComplete="email"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="foydalanuvchi@email.uz"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-xs sm:text-sm text-slate-900 placeholder-slate-400 transition-all shadow-xs"
-                  />
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                </div>
-              </div>
+            {/* PIN Login Form */}
+            {loginMethod === 'pin' ? (
+              <form onSubmit={handlePinSubmit} className="space-y-4">
+                {pinError && (
+                  <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-medium flex items-center gap-2 animate-in fade-in">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{pinError}</span>
+                  </div>
+                )}
 
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    PAROL
+                <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+                  <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider text-center">
+                    6 XONALI ULASH KODI
                   </label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-                  >
-                    Unutdingizmi?
-                  </Link>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      maxLength={8}
+                      autoFocus
+                      value={phonePin}
+                      onChange={(e) => {
+                        setPhonePin(e.target.value.replace(/[^0-9]/g, ''));
+                        setPinError(null);
+                      }}
+                      placeholder="000000"
+                      className="w-full text-center text-3xl font-mono font-black tracking-[0.25em] py-3.5 bg-white border-2 border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl text-slate-900 outline-none transition-all placeholder:text-slate-300 shadow-xs"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 text-center">
+                    Kompyuterdagi profilingizning <strong>Sozlamalar</strong> sahifasida ko‘rsatilgan 6 xonali kod.
+                  </p>
                 </div>
-                <div className="relative">
-                  <input
-                    type={showLoginPassword ? 'text' : 'password'}
-                    required
-                    autoComplete="current-password"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="Kamida 8 ta belgi"
-                    className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-xs sm:text-sm text-slate-900 placeholder-slate-400 transition-all shadow-xs"
-                  />
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+
+                <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-200/80 text-xs text-slate-700 leading-relaxed flex items-start gap-2">
+                  <KeyRound className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-slate-900">Nimalarni ko‘rasiz?</span> Ushbu kod bilan kirganda bugungi analitika hamda kompyuterda tuzilgan vazifalar chiqadi va ularni telefonda tick ✅ qilib belgilashingiz mumkin.
+                  </div>
+                </div>
+
+                <div className="pt-1 space-y-3">
+                  <button
+                    type="submit"
+                    disabled={pinLoading || phonePin.trim().length < 4}
+                    className="w-full py-3.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {pinLoading ? (
+                      <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                    ) : (
+                      <>
+                        <Smartphone className="w-4 h-4" />
+                        <span>Mobil rejimga kirish</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
                   <button
                     type="button"
-                    onClick={() => setShowLoginPassword(!showLoginPassword)}
-                    className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                    aria-label="Parolni ko‘rsatish"
+                    onClick={() => setLoginMethod('email')}
+                    className="w-full py-2.5 px-4 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-center"
                   >
-                    {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    ← Email va parol orqali kirish
                   </button>
                 </div>
-              </div>
+              </form>
+            ) : (
+              /* Standard Email Login Form */
+              <>
+                {loginError && (
+                  <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-medium animate-in fade-in">
+                    {loginError}
+                  </div>
+                )}
 
-              {/* Tizimga kirish va uning ostida Ro'yxatdan o'tish */}
-              <div className="pt-2 space-y-3">
-                <button
-                  type="submit"
-                  disabled={loginLoading}
-                  className="w-full py-3.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  {loginLoading ? (
-                    <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                  ) : (
-                    <>
-                      <span>Tizimga kirish</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                      EMAIL MANZIL
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        placeholder="foydalanuvchi@email.uz"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-xs sm:text-sm text-slate-900 placeholder-slate-400 transition-all shadow-xs"
+                      />
+                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                    </div>
+                  </div>
 
-                {/* Divider yoki */}
-                <div className="relative flex py-1 items-center">
-                  <div className="flex-grow border-t border-slate-200" />
-                  <span className="shrink mx-3 text-xs text-slate-400 font-medium">yoki</span>
-                  <div className="flex-grow border-t border-slate-200" />
-                </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        PAROL
+                      </label>
+                      <Link
+                        to="/forgot-password"
+                        className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+                      >
+                        Unutdingizmi?
+                      </Link>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showLoginPassword ? 'text' : 'password'}
+                        required
+                        autoComplete="current-password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        placeholder="Kamida 8 ta belgi"
+                        className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-xs sm:text-sm text-slate-900 placeholder-slate-400 transition-all shadow-xs"
+                      />
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword(!showLoginPassword)}
+                        className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                        aria-label="Parolni ko‘rsatish"
+                      >
+                        {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
 
-                {/* Ro'yxatdan o'tish tugmasi */}
-                <button
-                  type="button"
-                  onClick={() => setMode('register')}
-                  className="w-full py-3 px-5 rounded-xl border border-blue-600 hover:bg-blue-50/70 text-blue-600 font-bold text-xs sm:text-sm transition-all active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 shadow-xs"
-                >
-                  <User className="w-4 h-4" />
-                  <span>Ro‘yxatdan o‘tish</span>
-                </button>
-              </div>
-            </form>
+                  {/* Tizimga kirish va uning ostida Ro'yxatdan o'tish */}
+                  <div className="pt-2 space-y-3">
+                    <button
+                      type="submit"
+                      disabled={loginLoading}
+                      className="w-full py-3.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/25 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      {loginLoading ? (
+                        <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      ) : (
+                        <>
+                          <span>Tizimga kirish</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+
+                    {/* Quick phone banner */}
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod('pin')}
+                      className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      <Smartphone className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Telefonda kiryapsizmi? 6 xonali PIN bilan kirish</span>
+                    </button>
+
+                    {/* Divider yoki */}
+                    <div className="relative flex py-1 items-center">
+                      <div className="flex-grow border-t border-slate-200" />
+                      <span className="shrink mx-3 text-xs text-slate-400 font-medium">yoki</span>
+                      <div className="flex-grow border-t border-slate-200" />
+                    </div>
+
+                    {/* Ro'yxatdan o'tish tugmasi */}
+                    <button
+                      type="button"
+                      onClick={() => setMode('register')}
+                      className="w-full py-3 px-5 rounded-xl border border-blue-600 hover:bg-blue-50/70 text-blue-600 font-bold text-xs sm:text-sm transition-all active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Ro‘yxatdan o‘tish</span>
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
 
